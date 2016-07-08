@@ -42,17 +42,10 @@ int main (int argc, char** argv)
     std::cout << "points: " << cloud_rgb->points.size () << std::endl;
     //pcl::copyPointCloud(*cloud_rgb, *cloud);
 
-    /*
-    cloud->sensor_orientation_.w() = 0.0;
-    cloud->sensor_orientation_.x() = 1.0;
-    cloud->sensor_orientation_.y() = 0.0;
-    cloud->sensor_orientation_.z() = 0.0;
-
     cloud_rgb->sensor_orientation_.w() = 0.0;
     cloud_rgb->sensor_orientation_.x() = 1.0;
     cloud_rgb->sensor_orientation_.y() = 0.0;
     cloud_rgb->sensor_orientation_.z() = 0.0;
-    */
     
     // Create the segmentation planar object
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients ());
@@ -104,11 +97,17 @@ int main (int argc, char** argv)
     chull.setAlpha (0.1);
     chull.reconstruct (*cloud_hull);
 
+    cloud_hull->sensor_orientation_.w() = 0.0;
+    cloud_hull->sensor_orientation_.x() = 1.0;
+    cloud_hull->sensor_orientation_.y() = 0.0;
+    cloud_hull->sensor_orientation_.z() = 0.0;
+    
+
     std::cerr << "Concave hull has: " << cloud_hull->points.size ()
     << " data points." << std::endl;
 
     pcl::PCDWriter writer;
-    writer.write ("table_scene_mug_stereo_textured_hull.pcd", *cloud_hull, false);
+    writer.write ("scene_textured_hull.pcd", *cloud_hull, false);
       
     viewer.removeAllPointClouds();
 
@@ -116,7 +115,9 @@ int main (int argc, char** argv)
     viewer.setBackgroundColor (0.0, 0.0, 0.0);
     viewer.addPointCloud<pcl::PointXYZRGB>(cloud_rgb, rgb, "source cloud");
     //viewer.addPointCloud<pcl::PointXYZ>(cloud, "cloud");
-    viewer.addPointCloud<pcl::PointXYZRGB>(cloud_hull, "cloud hull");
+
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> green_color(cloud_hull, 0, 255, 0);
+    viewer.addPointCloud<pcl::PointXYZRGB>(cloud_hull, green_color, "cloud hull");
 
    /* pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_p_rgb (new pcl::PointCloud<pcl::PointXYZRGB>);
 
@@ -128,7 +129,6 @@ int main (int argc, char** argv)
         cloud_p_rgb->points[i].z = cloud_p->points[i].z;
     }
     */
-
     //pcl::copyPointCloud(*cloud_p, *cloud_p_rgb);
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> red_color(cloud_p, 255, 0, 0);
     viewer.addPointCloud<pcl::PointXYZRGB>(cloud_p,red_color,"segmented cloud");
